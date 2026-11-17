@@ -4,10 +4,10 @@ import service.*;
 public class Main {
     
     public static void main(String[] args) {
-        
-        ComplaintService service = new ComplaintServiceImpl();
 
         /*COMPLAINT SERVICE!
+        
+        ComplaintService service = new ComplaintServiceImpl();
 
         Complaint c1 = service.submitComplaint(101, ComplaintCategory.ELECTRICITY, "Power outage in hostel");
 
@@ -46,6 +46,47 @@ public class Main {
         COMPLAINT SERVICE!
 
         */
- 
+
+        UserService userService = new UserServiceImpl();
+
+        Student s1 = userService.registerStudent(101, "Akshara", "aksharabatta@gmail.com", "aksh123");
+
+        Student s2 = userService.registerStudent(102, "Blehh", "aksharabatta@gmail.com", "aksh123");
+
+        Student s3 = userService.registerStudent(103, "Riya", "riya@gmail.com", "pass789");
+
+        User loggedIn = userService.login("aksharabatta@gmail.com", "aksh123");
+
+        if(loggedIn!=null){
+
+            System.out.println(loggedIn.getName());
+
+            System.out.println(loggedIn.getRole());
+
+        }
+
+        User wrongIn = userService.login("aksharabatta@gmail.com", "w123");
+
+        if(wrongIn!=null){
+
+        System.out.println(wrongIn.getName());
+
+        System.out.println(wrongIn.getRole());
+
+        }
+        else{
+            System.out.println("Invalid email or password");
+        }
+
+        if(s2!=null){
+            System.out.println(s2.getName());
+        }
+        else{
+            System.out.println("Email already registered");
+        }
+
+        System.out.println(s3.getName());
+
+        System.out.println(s3.getEmail());
     }
 }
