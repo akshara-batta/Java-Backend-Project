@@ -128,9 +128,23 @@ public class Main {
                 break;
             }
 
-            case 3:
-                System.out.println("Cancel Complaint selected");
+            case 3: {
+                System.out.print("\nEnter Complaint ID to cancel: ");
+                int complaintId = sc.nextInt();
+                sc.nextLine();
+
+                boolean cancelled = complaintService.cancelComplaint(student.getUserId(), complaintId);
+
+                if(cancelled) {
+                    System.out.println("Complaint cancelled successfully!");
+                }
+                else {
+                    System.out.println("Unable to cancel complaint.");
+                    System.out.println("Check the ID, ownership, or complaint status.");
+                }
+
                 break;
+            }
 
             case 4:
                 System.out.println("Logging out...");
