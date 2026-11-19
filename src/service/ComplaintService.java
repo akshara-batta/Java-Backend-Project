@@ -2,12 +2,13 @@ package service;
 import model.Complaint;
 import model.ComplaintCategory;
 import model.ComplaintStatus;
+import model.ComplaintSubcategory;
 
 import java.util.*;
 
 public interface ComplaintService {
     
-    public Complaint submitComplaint(int studentId, ComplaintCategory category, String description);
+    public Complaint submitComplaint(int studentId, ComplaintCategory category, ComplaintSubcategory subcategory, String description);
 
     public ArrayList<Complaint> getStudentComplaints(int studentId);
 

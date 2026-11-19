@@ -2,6 +2,7 @@ package service;
 import model.Complaint;
 import model.ComplaintCategory;
 import model.ComplaintStatus;
+import  model.ComplaintSubcategory;
 import java.util.*;
 
 public class ComplaintServiceImpl implements ComplaintService{
@@ -11,9 +12,13 @@ public class ComplaintServiceImpl implements ComplaintService{
     private int nextComplaintId = 1001;
 
     @Override
-    public Complaint submitComplaint(int studentId, ComplaintCategory category, String description){
+    public Complaint submitComplaint(int studentId, ComplaintCategory category, ComplaintSubcategory subcategory, String description){
 
-        Complaint complaint = new Complaint(nextComplaintId++, studentId, category, description);
+        if(subcategory.getCategory() != category){
+            throw new IllegalArgumentException("Invalid SUBCATEGORY for chosen CATEGORY");
+        }
+
+        Complaint complaint = new Complaint(nextComplaintId++, studentId, category, subcategory, description);
 
         complaints.add(complaint);
 

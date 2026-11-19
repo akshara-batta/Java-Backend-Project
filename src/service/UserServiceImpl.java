@@ -1,5 +1,7 @@
 package service;
 
+import model.Admin;
+import model.Authority;
 import model.Student;
 import model.User;
 import java.util.*;
@@ -8,6 +10,7 @@ public class UserServiceImpl implements UserService{
     
     ArrayList<User> users = new ArrayList<>();
 
+    @Override 
     public Student registerStudent(int userId, String name, String email, String passwordHash){
 
         for(User i: users){
@@ -23,6 +26,7 @@ public class UserServiceImpl implements UserService{
         return student;
     }
 
+    @Override 
     public User login(String email, String passwordHash){
         for(User i: users){
             if((i.getEmail().equals(email)) && i.getPasswordHash().equals(passwordHash)){
@@ -30,5 +34,36 @@ public class UserServiceImpl implements UserService{
             }
         }
         return null;
+    }
+
+    @Override
+    public Admin createAdmin(int userId, String name, String email, String passwordHash){
+
+        for(User i: users){
+            if(i.getEmail().equals(email)){
+                return null;
+            }
+        }
+
+        Admin admin = new Admin(userId, name, email, passwordHash);
+
+        users.add(admin);
+
+        return admin;
+    }
+
+    @Override
+    public Authority createAuthority(int userId, String name, String email, String passwordHash){
+        for(User i: users){
+            if(i.getEmail().equals(email)){
+                return null;
+            }
+        }
+
+        Authority authority = new Authority(userId, name, email, passwordHash);
+
+        users.add(authority);
+
+        return authority;
     }
 }
