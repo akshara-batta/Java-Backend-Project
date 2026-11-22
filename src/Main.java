@@ -158,7 +158,111 @@ public class Main {
         while (choice!=4);
         
     }
+
+    public static void adminDashboard(Admin admin, Scanner sc, ComplaintService complaintService){
+
+    int choice;
+
+    do {
+        System.out.println("\n========== ADMIN DASHBOARD ==========");
+        System.out.println("Welcome, " + admin.getName());
+
+        System.out.println("1. View All Complaints");
+        System.out.println("2. Assign Complaint to Authority");
+        System.out.println("3. Update Complaint Status");
+        System.out.println("4. View Complaint Statistics");
+        System.out.println("5. Logout");
+
+        System.out.print("Enter your choice: ");
+        choice = sc.nextInt();
+        sc.nextLine();
+
+        switch(choice){
+
+            case 1: {
+                ArrayList<Complaint> allComplaints = complaintService.getAllComplaints();
+
+                if(allComplaints.isEmpty()) {
+                    System.out.println("\nNo complaints have been submitted yet!");
+                }
+                else {
+                    System.out.println("\n========== ALL COMPLAINTS ==========");
+
+                for(Complaint c : allComplaints) {
+                    System.out.println("\nComplaint ID: " + c.getComplaintId());
+                    System.out.println("Student ID: " + c.getStudentId());
+                    System.out.println("Category: " + c.getComplaintCategory());
+                    System.out.println("Subcategory: " + c.getSubcategory().getDisplayName());
+                    System.out.println("Description: " + c.getDescription());
+                    System.out.println("Status: " + c.getComplaintStatus());
+                    System.out.println("Assigned Authority ID: " + c.getAuthorityId());
+
+                    System.out.println("-----------------------------------");
+                    }
+                }
+
+                break;
+            }
+
+            case 2:
+                System.out.println("Assign Complaint selected");
+                break;
+
+            case 3:
+                System.out.println("Update Complaint Status selected");
+                break;
+
+            case 4:
+                System.out.println("View Complaint Statistics selected");
+                break;
+
+            case 5:
+                System.out.println("Logging out...");
+                break;
+
+            default:
+                System.out.println("Invalid choice. Try Again!");
+        }
+
+    } while(choice != 5);
+}
     
+    public static void authorityDashboard(Authority authority, Scanner sc, ComplaintService complaintService){
+
+        int choice;
+
+        do{
+            System.out.println("\n========== AUTHORITY DASHBOARD ==========");
+            System.out.println("Welcome, " + authority.getName());
+
+            System.out.println("1. View Assigned Complaints");
+            System.out.println("2. Update Complaint Status");
+            System.out.println("3. Logout");
+
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch(choice){
+                
+                case 1:
+                    System.out.println("View Assigned Complaints selected!");
+                    break;
+
+                case 2:
+                    System.out.println("Update Complaint Status selected");
+                    break;
+
+                case 3:
+                    System.out.println("Logging out...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Try Again!");
+            }
+        }
+        while(choice !=3);
+    }
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -166,6 +270,10 @@ public class Main {
         UserService userService = new UserServiceImpl();
 
         ComplaintService complaintService = new ComplaintServiceImpl();
+
+        userService.createAdmin(1, "System Admin", "admin@resolve360.com", "admin123");
+
+        userService.createAuthority(2, "Electricity Department", "electricity@resolve360.com", "authority123");
 
         int choice;
 
@@ -226,6 +334,12 @@ public class Main {
                         if(loggedIn instanceof Student){
                             studentDashboard((Student) loggedIn, sc, complaintService);
                         }
+                        else if(loggedIn instanceof Admin){
+                            adminDashboard((Admin) loggedIn, sc, complaintService);
+                        }
+                        else if(loggedIn instanceof Authority){
+                            authorityDashboard((Authority) loggedIn, sc, complaintService);
+}
                     }
                     else{
                         System.out.println("Login unsuccessful! Invalid email or password!");
