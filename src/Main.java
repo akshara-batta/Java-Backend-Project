@@ -17,7 +17,8 @@ public class Main {
         System.out.println("1. Submit Complaint");
         System.out.println("2. View My Complaints");
         System.out.println("3. Cancel Complaint");
-        System.out.println("4. Logout");
+        System.out.println("4. Reopen Complaint");
+        System.out.println("5. Logout");
 
         System.out.print("Enter your Choice: ");
         choice = sc.nextInt();
@@ -146,7 +147,30 @@ public class Main {
                 break;
             }
 
-            case 4:
+            case 4: {
+
+                System.out.print("Enter Complaint ID to Reopen: ");
+                int complaintId = sc.nextInt();
+
+                Complaint complaint = complaintService.getComplaintById(complaintId);
+
+                if(complaint == null){
+                    System.out.println("Complaint not found.");
+                }
+                else if(complaint.getStudentId() != student.getUserId()){
+                    System.out.println("You can only reopen your own complaints.");
+                }
+                else if(complaint.getComplaintStatus() != ComplaintStatus.RESOLVED){
+                    System.out.println("Only Resolved complaints can be reopened.");
+                }
+                else{
+                    complaintService.reopenComplaint(complaintId);
+                    System.out.println("Complaint reopend successfully!");
+                }
+                break;
+            }
+
+            case 5:
                 System.out.println("Logging out...");
                 break;
 
@@ -155,11 +179,11 @@ public class Main {
         }
             
         } 
-        while (choice!=4);
+        while (choice!=5);
         
     }
 
-    public static void adminDashboard(Admin admin, Scanner sc, ComplaintService complaintService){
+    public static void adminDashboard(Admin admin, Scanner sc, ComplaintService complaintService, UserService userService){
 
     int choice;
 
@@ -169,7 +193,7 @@ public class Main {
 
         System.out.println("1. View All Complaints");
         System.out.println("2. Assign Complaint to Authority");
-        System.out.println("3. Update Complaint Status");
+        System.out.println("3. Create Authority Account");
         System.out.println("4. View Complaint Statistics");
         System.out.println("5. Logout");
 
@@ -204,17 +228,69 @@ public class Main {
                 break;
             }
 
-            case 2:
-                System.out.println("Assign Complaint selected");
+            case 2: {
+                System.out.print("\nEnter Complaint ID: ");
+                int complaintId = sc.nextInt();
+
+                System.out.print("\nEnter Authority ID: ");
+                int authorityId = sc.nextInt();
+                sc.nextLine();
+
+                complaintService.assignAuthority(complaintId, authorityId);
+
+                System.out.println("Complaint assigned successfully!");
+
                 break;
+            }
+                
 
             case 3:
-                System.out.println("Update Complaint Status selected");
-                break;
+                System.out.println("\n=========CREATE AUTHORITY ACCOUNT=========");
 
-            case 4:
-                System.out.println("View Complaint Statistics selected");
+                    System.out.print("Enter Authority ID: ");
+                    int authorityId = sc.nextInt();
+                    sc.nextLine();
+
+                    System.out.print("Enter Authority Name: ");
+                    String name = sc.nextLine();
+
+                    System.out.print("Enter Authority Email: ");
+                    String email = sc.nextLine();
+
+                    System.out.print("Enter Password: ");
+                    String password = sc.nextLine();
+
+                    Authority authority = userService.createAuthority(authorityId, name, email, password);
+
+                    if(authority!=null){
+                        System.out.println("\nAuthority account created successfully!");
+                        System.out.println("Authority ID: " + authority.getUserId());
+                        System.out.println("Name: " + authority.getName());
+                    }
+                    else{
+                        System.out.println("An account with this email already exists.");
+                    }
+                    break;
+
+            case 4: {
+
+                int pending = complaintService.getComplaintCountByStatus(ComplaintStatus.PENDING);
+                int inProgress = complaintService.getComplaintCountByStatus(ComplaintStatus.IN_PROGRESS);
+                int resolved = complaintService.getComplaintCountByStatus(ComplaintStatus.RESOLVED);
+                int reopened = complaintService.getComplaintCountByStatus(ComplaintStatus.REOPENED);
+                int cancelled = complaintService.getComplaintCountByStatus(ComplaintStatus.CANCELLED);
+
+                int total = pending + inProgress + resolved + reopened + cancelled;
+
+                System.out.println("\n===== COMPLAINT STATISTICS =====");
+                System.out.println("Total Complaints: " + total);
+                System.out.println("Pending: " + pending);
+                System.out.println("In Progress: " + inProgress);
+                System.out.println("Resolved: " + resolved);
+                System.out.println("Reopened: " + reopened);
+                System.out.println("Cancelled: " + cancelled);
                 break;
+            }
 
             case 5:
                 System.out.println("Logging out...");
@@ -245,13 +321,66 @@ public class Main {
 
             switch(choice){
                 
-                case 1:
-                    System.out.println("View Assigned Complaints selected!");
-                    break;
+                case 1: {
 
-                case 2:
-                    System.out.println("Update Complaint Status selected");
+                    ArrayList<Complaint> assignedComplaints = complaintService.getAssignedComplaints(authority.getUserId());
+
+                    if(assignedComplaints.isEmpty()){
+                        System.out.println("\nNo Complaints assigned to you yet!");
+                    }
+                    else{
+                        System.out.println("\n====== YOUR ASSIGNED COMPLAINTS ======");
+
+                        for(Complaint c : assignedComplaints) {
+                            System.out.println("\nComplaint ID: " + c.getComplaintId());
+                            System.out.println("Student ID: " + c.getStudentId());
+                            System.out.println("Category: " + c.getComplaintCategory());
+                            System.out.println("Subcategory: " + c.getSubcategory().getDisplayName());
+                            System.out.println("Description: " + c.getDescription());
+                            System.out.println("Status: " + c.getComplaintStatus());
+                            System.out.println("-----------------------------------");
+                        }
+                    }
+
                     break;
+                }
+                    
+
+                case 2: {
+                    System.out.print("\nEnter Complaint ID: ");
+                    int complaintId = sc.nextInt();
+
+                    System.out.println("\nSelect New Status:");
+                    System.out.println("1. In Progress");
+                    System.out.println("2. Resolved");
+
+                    System.out.print("Enter your choice: ");
+                    int statusChoice = sc.nextInt();
+                    sc.nextLine();
+
+                    ComplaintStatus newStatus = null;
+
+                    switch(statusChoice) {
+                        case 1:
+                            newStatus = ComplaintStatus.IN_PROGRESS;
+                            break;
+
+                        case 2:
+                            newStatus = ComplaintStatus.RESOLVED;
+                            break;
+
+                        default:
+                            System.out.println("Invalid status choice!");
+                            break;
+                    }
+
+                    if(newStatus != null) {
+                        complaintService.updateComplaintStatus(complaintId, newStatus);
+                        System.out.println("Complaint status updated successfully!");
+                    }
+
+                    break;
+                }
 
                 case 3:
                     System.out.println("Logging out...");
@@ -335,7 +464,7 @@ public class Main {
                             studentDashboard((Student) loggedIn, sc, complaintService);
                         }
                         else if(loggedIn instanceof Admin){
-                            adminDashboard((Admin) loggedIn, sc, complaintService);
+                            adminDashboard((Admin) loggedIn, sc, complaintService, userService);
                         }
                         else if(loggedIn instanceof Authority){
                             authorityDashboard((Authority) loggedIn, sc, complaintService);
