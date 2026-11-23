@@ -10,4 +10,6 @@ public interface UserService {
     public Admin createAdmin(int userId, String name, String email, String passwordHash);
 
     public Authority createAuthority(int userId, String name, String email, String passwordHash);
+
+    public Authority getAuthorityById(int userId);
 }

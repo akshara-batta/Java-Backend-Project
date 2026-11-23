@@ -66,4 +66,14 @@ public class UserServiceImpl implements UserService{
 
         return authority;
     }
+
+    @Override
+    public Authority getAuthorityById(int userId){
+        for(User u : users){
+            if(u instanceof Authority && u.getUserId() == userId){
+                return (Authority) u;
+            }
+        }
+        return null;
+    }
 }

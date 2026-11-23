@@ -4,7 +4,25 @@ import service.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import exceptions.ComplaintNotFoundException;
+import exceptions.InvalidComplaintStatusException;
+import exceptions.UnauthorizedComplaintAccessException;
+
 public class Main {
+
+    public static int readInt(Scanner sc) {
+        while(true) {
+            if(sc.hasNextInt()) {
+                int value = sc.nextInt();
+                sc.nextLine();
+                return value;
+            }
+            else {
+                System.out.print("Invalid input! Please enter a number: ");
+                sc.nextLine();
+            }
+        }
+    }
 
     public static void studentDashboard(Student student, Scanner sc, ComplaintService complaintService){
 
@@ -21,8 +39,7 @@ public class Main {
         System.out.println("5. Logout");
 
         System.out.print("Enter your Choice: ");
-        choice = sc.nextInt();
-        sc.nextLine();
+        choice = readInt(sc);
 
         switch(choice){
 
@@ -37,8 +54,7 @@ public class Main {
                 System.out.println("5. Hostel");
                 
                 System.out.print("Enter your choice: ");
-                int categoryChoice = sc.nextInt();
-                sc.nextLine(); 
+                int categoryChoice = readInt(sc); 
                 
                 ComplaintCategory category = null;
 
@@ -79,8 +95,7 @@ public class Main {
             }
 
             System.out.print("Enter your choice: ");
-            int subcategoryChoice = sc.nextInt();
-            sc.nextLine();
+            int subcategoryChoice = readInt(sc);
 
             if(subcategoryChoice < 1 || subcategoryChoice > subcategories.size()) {
                 System.out.println("Invalid subcategory choice!");
@@ -92,6 +107,8 @@ public class Main {
             System.out.print("Enter Complaint Description: ");
             String description = sc.nextLine();
 
+            try{
+
             Complaint complaint = complaintService.submitComplaint(
                 student.getUserId(),
                 category,
@@ -102,6 +119,10 @@ public class Main {
             System.out.println("\nComplaint submitted successfully!");
             System.out.println("Your Complaint ID: " + complaint.getComplaintId());
             System.out.println("Status: " + complaint.getComplaintStatus());
+        }
+        catch(IllegalArgumentException e){
+            System.out.println(e.getMessage());
+        }
 
             break;
         }
@@ -131,8 +152,7 @@ public class Main {
 
             case 3: {
                 System.out.print("\nEnter Complaint ID to cancel: ");
-                int complaintId = sc.nextInt();
-                sc.nextLine();
+                int complaintId = readInt(sc);
 
                 boolean cancelled = complaintService.cancelComplaint(student.getUserId(), complaintId);
 
@@ -150,23 +170,18 @@ public class Main {
             case 4: {
 
                 System.out.print("Enter Complaint ID to Reopen: ");
-                int complaintId = sc.nextInt();
+                int complaintId = readInt(sc);
 
-                Complaint complaint = complaintService.getComplaintById(complaintId);
+                try{
+                    complaintService.reopenComplaint(student.getUserId(), complaintId);
+                
+                System.out.println("Complaint reopened successfully!");
+                }
 
-                if(complaint == null){
-                    System.out.println("Complaint not found.");
+                catch(ComplaintNotFoundException | UnauthorizedComplaintAccessException | InvalidComplaintStatusException e){
+                    System.out.println(e.getMessage());
                 }
-                else if(complaint.getStudentId() != student.getUserId()){
-                    System.out.println("You can only reopen your own complaints.");
-                }
-                else if(complaint.getComplaintStatus() != ComplaintStatus.RESOLVED){
-                    System.out.println("Only Resolved complaints can be reopened.");
-                }
-                else{
-                    complaintService.reopenComplaint(complaintId);
-                    System.out.println("Complaint reopend successfully!");
-                }
+
                 break;
             }
 
@@ -198,8 +213,7 @@ public class Main {
         System.out.println("5. Logout");
 
         System.out.print("Enter your choice: ");
-        choice = sc.nextInt();
-        sc.nextLine();
+        choice = readInt(sc);
 
         switch(choice){
 
@@ -230,15 +244,19 @@ public class Main {
 
             case 2: {
                 System.out.print("\nEnter Complaint ID: ");
-                int complaintId = sc.nextInt();
+                int complaintId = readInt(sc);
 
                 System.out.print("\nEnter Authority ID: ");
-                int authorityId = sc.nextInt();
-                sc.nextLine();
+                int authorityId = readInt(sc);
 
-                complaintService.assignAuthority(complaintId, authorityId);
+                try{
+                    complaintService.assignAuthority(complaintId, authorityId);
 
-                System.out.println("Complaint assigned successfully!");
+                    System.out.println("Complaint assigned successfully!");
+                }
+                catch(ComplaintNotFoundException | IllegalArgumentException e){
+                    System.out.println(e.getMessage());
+                }
 
                 break;
             }
@@ -248,8 +266,7 @@ public class Main {
                 System.out.println("\n=========CREATE AUTHORITY ACCOUNT=========");
 
                     System.out.print("Enter Authority ID: ");
-                    int authorityId = sc.nextInt();
-                    sc.nextLine();
+                    int authorityId = readInt(sc);
 
                     System.out.print("Enter Authority Name: ");
                     String name = sc.nextLine();
@@ -316,8 +333,7 @@ public class Main {
             System.out.println("3. Logout");
 
             System.out.print("Enter your choice: ");
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = readInt(sc);
 
             switch(choice){
                 
@@ -348,15 +364,14 @@ public class Main {
 
                 case 2: {
                     System.out.print("\nEnter Complaint ID: ");
-                    int complaintId = sc.nextInt();
+                    int complaintId = readInt(sc);
 
                     System.out.println("\nSelect New Status:");
                     System.out.println("1. In Progress");
                     System.out.println("2. Resolved");
 
                     System.out.print("Enter your choice: ");
-                    int statusChoice = sc.nextInt();
-                    sc.nextLine();
+                    int statusChoice = readInt(sc);
 
                     ComplaintStatus newStatus = null;
 
@@ -374,11 +389,19 @@ public class Main {
                             break;
                     }
 
-                    if(newStatus != null) {
-                        complaintService.updateComplaintStatus(complaintId, newStatus);
-                        System.out.println("Complaint status updated successfully!");
-                    }
+                    Complaint complaint = complaintService.getComplaintById(complaintId);
 
+                    if(complaint != null){
+                        
+                        try{
+                            complaintService.updateComplaintStatus(complaintId, authority.getUserId(), newStatus);
+                            System.out.println("Complaint status updated successfully!");
+                        }
+                        catch(ComplaintNotFoundException | UnauthorizedComplaintAccessException | InvalidComplaintStatusException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    
                     break;
                 }
 
@@ -398,7 +421,7 @@ public class Main {
 
         UserService userService = new UserServiceImpl();
 
-        ComplaintService complaintService = new ComplaintServiceImpl();
+        ComplaintService complaintService = new ComplaintServiceImpl(userService);
 
         userService.createAdmin(1, "System Admin", "admin@resolve360.com", "admin123");
 
@@ -413,16 +436,14 @@ public class Main {
             System.out.println("3. Exit");
 
             System.out.print("Enter your choice: ");
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = readInt(sc);
 
             switch(choice){
                 case 1: {
                     System.out.println("===========STUDENT REGISTRATION==========");
 
                     System.out.print("Enter User ID: ");
-                    int userId = sc.nextInt();
-                    sc.nextLine();
+                    int userId = readInt(sc);
 
                     System.out.print("Enter your name: ");
                     String name = sc.nextLine();

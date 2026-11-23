@@ -18,13 +18,13 @@ public interface ComplaintService {
 
     public void assignAuthority(int complaintId, int authorityId);
 
-    public void updateComplaintStatus(int complaintId, ComplaintStatus status);
+    public void updateComplaintStatus(int complaintId, int authorityId, ComplaintStatus status);
 
     public ArrayList<Complaint> getAssignedComplaints(int authorityId);
 
     public int getComplaintCountByStatus(ComplaintStatus status);
 
-    public void reopenComplaint(int complaintId);
+    public void reopenComplaint(int studentId, int complaintId);
 
     public boolean cancelComplaint(int studentId, int complaintId);
 }
