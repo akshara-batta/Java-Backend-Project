@@ -430,7 +430,7 @@ public class Main {
         int choice;
 
         do{
-            System.out.println("\n==========RESOLVE360==========");
+            System.out.println("\n==========NESTFIX==========");
             System.out.println("1. Register as Student");
             System.out.println("2. Login");
             System.out.println("3. Exit");
@@ -497,7 +497,7 @@ public class Main {
                     break;
                 }
                 case 3:
-                    System.out.println("Thankyou for using RESOLVE360");
+                    System.out.println("Thankyou for using NESTFIX");
                     break;
                 default:
                     System.out.println("Wrong Choice. Try Again");
